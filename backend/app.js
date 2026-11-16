@@ -51,6 +51,7 @@ app.use('/api/constitution', require('./http/routes/constitution'));
 app.use('/api/actions', require('./http/routes/actions'));
 app.use('/api/reviews', require('./http/routes/reviews'));
 app.use('/api/alerts', require('./http/routes/alerts'));
+app.use('/api/peer', require('./http/routes/peer'));
 app.use('/api', require('./http/routes/system'));
 
 app.use('/api', (req, res) => {

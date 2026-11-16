@@ -82,6 +82,7 @@ export const api = {
   aiTest: () => request('/api/ai/test', { method: 'POST' }),
   analysisOverview: () => request('/api/analysis/overview'),
   analysisDca: (code, amount, months) => request(`/api/analysis/dca?code=${code}&amount=${amount}&months=${months}`),
+  peer: (code) => request(`/api/peer/${encodeURIComponent(code)}`),
   constitution: () => request('/api/constitution'),
   saveConstitution: (body) => request('/api/constitution', { method: 'PUT', body }),
   checkConstitution: (body) => request('/api/constitution/check', { method: 'POST', body }),

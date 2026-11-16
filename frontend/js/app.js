@@ -1,4 +1,4 @@
-import { api, ApiError, onAuthRequired } from './api.js?v=1.6';
+import { api, ApiError, onAuthRequired } from './api.js?v=1.7';
 import {
   escapeHtml,
   money,
@@ -1146,7 +1146,7 @@ function renderReviewLink() {
 
 // -------------------- 深度分析 --------------------
 
-const stateAnalysis = { loaded: false, loading: false, view: 'dca' };
+const stateAnalysis = { loaded: false, loading: false, view: 'dca', peerLoaded: false, peerLoading: false };
 
 function initAnalysis() {
   const tabs = document.getElementById('analysisTabs');
@@ -1160,6 +1160,13 @@ function initAnalysis() {
   document.getElementById('dcaCode').addEventListener('keydown', (event) => {
     if (event.key === 'Enter') { event.preventDefault(); runDca(); }
   });
+  const peerRun = document.getElementById('peerRun');
+  if (peerRun) {
+    peerRun.addEventListener('click', runPeer);
+    document.getElementById('peerCode').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') { event.preventDefault(); runPeer(); }
+    });
+  }
 }
 
 function showAnalysisView(view) {
@@ -1170,7 +1177,98 @@ function showAnalysisView(view) {
   document.querySelectorAll('#analysisBody .analysis-view').forEach((el) => {
     el.classList.toggle('hidden', el.dataset.view !== view);
   });
-  if (view !== 'dca' && !stateAnalysis.loaded) loadOverview();
+  if (view !== 'dca' && view !== 'peer' && !stateAnalysis.loaded) loadOverview();
+}
+
+async function runPeer() {
+  if (stateAnalysis.peerLoading) return;
+  const code = document.getElementById('peerCode').value.trim();
+  const box = document.getElementById('peerResult');
+  if (!/^\d{6}$/.test(code)) {
+    box.className = 'analysis-result empty';
+    box.textContent = '请输入 6 位基金代码';
+    return;
+  }
+  stateAnalysis.peerLoading = true;
+  box.className = 'analysis-result empty';
+  box.textContent = '正在拉取同类基金数据，首次约 10~20 秒…';
+  try {
+    const data = await api.peer(code);
+    stateAnalysis.peerLoaded = true;
+    renderPeer(data, box);
+  } catch (error) {
+    box.className = 'analysis-result empty';
+    box.textContent = `分析失败：${error.message}`;
+  } finally {
+    stateAnalysis.peerLoading = false;
+  }
+}
+
+function renderPeer(data, box) {
+  const pct = (v) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
+  const me = data.me;
+
+  const rows = [
+    ['近 1 年收益', pct(me.m1y), data.rank.r1, data.quantile.q1],
+    ['近 3 年年化', pct(me.m3y), data.rank.r3, data.quantile.q3],
+    ['最大回撤', pct(me.mdd3y), data.rank.mdd, data.quantile.qd],
+  ].map(([label, value, rank, q]) => {
+    const color = q >= 67 ? '#0f766e' : q >= 33 ? '#b45309' : '#b91c1c';
+    const rk = rank && rank[0] ? `第 ${rank[0]}/${rank[1]}` : '样本不足';
+    return `
+      <div class="peer-row">
+        <span class="peer-label">${label}</span>
+        <span class="peer-value">${value}</span>
+        <span class="peer-rank">${rk}</span>
+        <span class="peer-track"><i style="width:${q || 0}%;background:${color}"></i></span>
+      </div>`;
+  }).join('');
+
+  const alts = data.alternatives.length ? data.alternatives.slice(0, 3).map((a) => {
+    const gap = a.gap;
+    const cum = Math.pow(1 + gap, 3) - 1;
+    const net = cum - data.config.roundTrip;
+    const bad = net <= 0 || !a.qualified;
+    const money = Math.round(net * 100000);
+    const verdict = !a.qualified
+      ? '成立不满 3 年或规模过小，年化被放大，<b>不能直接比</b>。'
+      : bad
+        ? `摩擦成本吃掉全部超额（净 ${(net * 100).toFixed(1)}%），<b>不值得换</b>。`
+        : `年化差 ${(gap * 100).toFixed(1)} 个点 → 3 年累计 ${(cum * 100).toFixed(1)}%，` +
+          `扣摩擦后净 <b>${(net * 100).toFixed(1)}%</b>，每 10 万约 <b>${money >= 0 ? '+' : ''}${money.toLocaleString()} 元</b>。`;
+    return `
+      <div class="peer-alt">
+        <div class="peer-alt-head">
+          <b>${escapeHtml(a.peer.name)}</b>
+          <span class="code">${a.peer.code}</span>
+          <span class="peer-pill">重叠 ${(a.overlap * 100).toFixed(0)}%</span>
+          <span class="peer-pill">相关性 ${a.peer.corr == null ? '—' : a.peer.corr.toFixed(2)}</span>
+        </div>
+        <div class="peer-alt-facts">
+          <span>3年年化 <b>${pct(a.peer.m3y)}</b></span>
+          <span>回撤 <b>${pct(a.peer.mdd3y)}</b></span>
+          <span>规模 <b>${a.peer.size ? a.peer.size.toFixed(0) + ' 亿' : '—'}</b></span>
+        </div>
+        <p class="peer-verdict ${bad ? 'bad' : ''}">${verdict}</p>
+        ${a.caveats.length ? `<p class="peer-caveat">要留意：${escapeHtml(a.caveats.join('；'))}</p>` : ''}
+      </div>`;
+  }).join('') : '<div class="empty">没有重仓重叠 ≥50% 的可替代品——同类里没有「换了等于没换」的选项。</div>';
+
+  box.className = 'analysis-result';
+  box.innerHTML = `
+    <div class="peer-head">
+      <div>
+        <b>${escapeHtml(data.name)}</b>
+        <span class="hint">${data.code} · 同类 ${data.n} 只（已剔除 ${data.dropped} 只走势不像的）</span>
+      </div>
+      <span class="peer-quad">${escapeHtml(data.quadrant)}</span>
+    </div>
+    <div class="peer-rows">${rows}</div>
+    <p class="analysis-tip">分位越高越好；历史不足 2.5 年的不参与 3 年排名。数据截至 ${data.as_of}</p>
+    <h3 class="peer-sub">可替代与换基测算</h3>
+    <p class="analysis-tip">前十大重仓重叠 ≥50% 才算「换了等于没换」。</p>
+    ${alts}
+    <p class="analysis-tip">历史数据，不构成投资建议。</p>`;
 }
 
 function fmtRate(rate) {

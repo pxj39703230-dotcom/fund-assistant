@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <title>基金投资助手</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="style.css?v=1.6">
+  <link rel="stylesheet" href="style.css?v=1.7">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#0b4f6c">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -280,6 +280,7 @@
             <button type="button" class="tab active" data-view="dca">定投测算</button>
             <button type="button" class="tab" data-view="benchmark">对比沪深300</button>
             <button type="button" class="tab" data-view="attribution">收益归因</button>
+            <button type="button" class="tab" data-view="peer">同类位置</button>
           </div>
         </div>
 
@@ -314,6 +315,18 @@
 
           <div class="analysis-view hidden" data-view="attribution">
             <div id="attributionResult" class="analysis-result empty">切换到这里会自动加载。</div>
+          </div>
+
+          <div class="analysis-view hidden" data-view="peer">
+            <div class="dca-form">
+              <div class="field">
+                <label for="peerCode">基金代码</label>
+                <input id="peerCode" type="text" inputmode="numeric" maxlength="6" placeholder="如 512480">
+              </div>
+              <button type="button" class="btn primary" id="peerRun">开始分析</button>
+            </div>
+            <p class="analysis-tip">自动找出同类基金，算你在同类里的分位，并给出换基测算。首次 10~20 秒，之后走缓存。</p>
+            <div id="peerResult" class="analysis-result empty">输入基金代码，看看它在同类里的位置。</div>
           </div>
         </div>
       </section>
@@ -455,6 +468,6 @@
     </div>
   </div>
 
-  <script type="module" src="js/app.js?v=1.6"></script>
+  <script type="module" src="js/app.js?v=1.7"></script>
 </body>
 </html>
