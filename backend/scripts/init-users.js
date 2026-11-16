@@ -4,11 +4,9 @@ const path = require('path');
 
 const dbPath = path.join(__dirname, '../../fund.db');
 
-// 确保数据库文件存在的情况下才执行
 try {
   const db = new Database(dbPath);
 
-  // 创建 users 表（如果不存在）
   db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -18,51 +16,41 @@ try {
     )
   `);
 
-  // 为 funds 表添加 user_id 字段（如果不存在）
   try {
     db.exec(`ALTER TABLE funds ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1`);
-    console.log('✅ funds 表已添加 user_id 字段');
+    console.log('funds user_id added');
   } catch (err) {
-    if (err.message.includes('duplicate column name')) {
-      console.log('ℹ️  user_id 字段已存在，跳过');
-    } else {
-      throw err;
-    }
+    if (!err.message.includes('duplicate column name')) throw err;
   }
 
-  // 为 holdings 表添加 user_id 字段（如果不存在）
   try {
     db.exec(`ALTER TABLE holdings ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1`);
-    console.log('✅ holdings 表已添加 user_id 字段');
+    console.log('holdings user_id added');
   } catch (err) {
-    if (err.message.includes('duplicate column name')) {
-      console.log('ℹ️  holdings 的 user_id 字段已存在，跳过');
-    } else {
-      throw err;
-    }
+    if (!err.message.includes('duplicate column name')) throw err;
   }
 
-  // 插入两个账号（密码用 bcrypt 加密）
   const users = [
     { username: 'pxj', password: 'pxj123' },
     { username: 'sgw', password: 'sgw123' }
   ];
 
-  const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
+  // 先删除旧用户，确保密码更新
+  const deleteStmt = db.prepare('DELETE FROM users WHERE username = ?');
+  users.forEach(u => {
+    deleteStmt.run(u.username);
+  });
 
+  // 插入新用户
+  const insertStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
   users.forEach(u => {
     const hashedPassword = bcrypt.hashSync(u.password, 10);
-    const result = stmt.run(u.username, hashedPassword);
-    if (result.changes > 0) {
-      console.log(`✅ 账号 ${u.username} 已初始化`);
-    } else {
-      console.log(`ℹ️  账号 ${u.username} 已存在，跳过`);
-    }
+    insertStmt.run(u.username, hashedPassword);
+    console.log(`✅ 账号 ${u.username} 已初始化（密码：${u.password}）`);
   });
 
   db.close();
-  console.log('✅ 用户初始化完成');
+  console.log('Init complete');
 } catch (err) {
-  console.error('⚠️  初始化失败，但不影响服务启动:', err.message);
-  // 不退出进程，让服务继续启动
+  console.error('Init failed:', err.message);
 }
