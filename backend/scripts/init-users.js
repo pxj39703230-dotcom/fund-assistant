@@ -15,14 +15,18 @@ db.exec(`
   )
 `);
 
-// 为 holdings 表添加 user_id 字段
+// 为 funds 表添加 user_id 字段（如果不存在）
 try {
-  db.exec('ALTER TABLE holdings ADD COLUMN user_id INTEGER DEFAULT 1');
+  db.exec(`ALTER TABLE funds ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1`);
+  console.log('✅ funds 表已添加 user_id 字段');
 } catch (err) {
-  if (!err.message.includes('duplicate column name')) {
-    console.warn('⚠️ 添加 user_id 字段时出错:', err.message);
+  if (err.message.includes('duplicate column name')) {
+    console.log('ℹ️ user_id 字段已存在，跳过');
+  } else {
+    throw err;
   }
 }
+
 
 // 初始化两个账号
 async function initUsers() {
