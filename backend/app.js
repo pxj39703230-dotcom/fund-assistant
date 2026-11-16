@@ -27,6 +27,15 @@ app.use(express.static(path.join(config.rootDir, 'frontend'), {
   },
 }));
 
+// 健康检查接口（不需要 token，用于防止 Render 休眠）
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.use('/api', requireToken);
 
 app.use('/api/holdings', require('./http/routes/holdings'));
