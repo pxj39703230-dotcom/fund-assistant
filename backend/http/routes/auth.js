@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const dbPath = path.join(__dirname, '../../../fund.db');
+const dbPath = path.join(__dirname, '../../data/fund.db');
+
 const JWT_SECRET = process.env.JWT_SECRET || 'fund-assistant-secret-key-2026';
 
 router.post('/login', (req, res) => {
