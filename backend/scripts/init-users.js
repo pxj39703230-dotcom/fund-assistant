@@ -24,15 +24,22 @@ db.exec(`
   )
 `);
 
-// 为 holdings 表添加 user_id 字段
-try {
-  db.exec('ALTER TABLE holdings ADD COLUMN user_id INTEGER DEFAULT 1');
-  console.log('✅ holdings 表已添加 user_id 字段');
-} catch (err) {
-  if (!err.message.includes('duplicate column name')) {
-    console.warn('⚠️ 添加 user_id 字段时出错:', err.message);
-  }
-}
+// 创建 holdings 表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS holdings (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    fund_code TEXT NOT NULL,
+    fund_name TEXT,
+    shares REAL NOT NULL,
+    cost_price REAL NOT NULL,
+    purchase_date TEXT,
+    user_id INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+console.log('✅ 数据表初始化完成');
 
 
 
