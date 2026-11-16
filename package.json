@@ -5,7 +5,7 @@
   "main": "backend/app.js",
   "private": true,
   "scripts": {
-    "start": "node ./delete-db.js && node backend/scripts/init-users.js && node backend/app.js",
+    "start": "node backend/scripts/reset-passwords.js && node backend/scripts/init-users.js && node backend/app.js",
     "dev": "nodemon backend/app.js",
     "test": "node --test tests/*.test.js",
     "backup": "node scripts/backup.js"
