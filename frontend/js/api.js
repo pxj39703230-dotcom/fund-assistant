@@ -32,8 +32,12 @@ export class ApiError extends Error {
 async function request(path, options = {}) {
   const headers = { ...(options.headers || {}) };
   if (options.body !== undefined) headers['Content-Type'] = 'application/json';
-  const token = getToken();
-  if (token) headers['X-API-Token'] = token;
+  
+  // 获取 JWT token 并添加到请求头
+  const token = localStorage.getItem('token');
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
 
   let response;
   try {
@@ -46,12 +50,12 @@ async function request(path, options = {}) {
     throw new ApiError('无法连接服务，请确认 node 服务仍在运行', 0);
   }
 
-  if (response.status === 401 && authPrompt) {
-    const input = await authPrompt();
-    if (input !== null && input !== undefined) {
-      setToken(input.trim());
-      return request(path, options);
-    }
+  // 如果返回 401，token 失效，跳转到登录页
+  if (response.status === 401) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('username');
+    window.location.href = '/login.html';
+    throw new ApiError('登录已过期，请重新登录', 401);
   }
 
   const contentType = response.headers.get('content-type') || '';

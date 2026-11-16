@@ -1,0 +1,49 @@
+const Database = require('better-sqlite3');
+const bcrypt = require('bcryptjs');
+const path = require('path');
+
+const dbPath = path.join(__dirname, '../../fund.db');
+const db = new Database(dbPath);
+
+// 创建 users 表
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+  )
+`);
+
+// 为 funds 表添加 user_id 字段（如果不存在）
+try {
+  db.exec(`ALTER TABLE funds ADD COLUMN user_id INTEGER NOT NULL DEFAULT 1`);
+  console.log('✅ funds 表已添加 user_id 字段');
+} catch (err) {
+  if (err.message.includes('duplicate column name')) {
+    console.log('ℹ️  user_id 字段已存在，跳过');
+  } else {
+    throw err;
+  }
+}
+
+// 插入两个账号（密码用 bcrypt 加密）
+const users = [
+  { username: 'pxj', password: 'pxj123' },
+  { username: 'sgw', password: 'sgw123' }
+];
+
+const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
+
+users.forEach(u => {
+  const hashedPassword = bcrypt.hashSync(u.password, 10);
+  const result = stmt.run(u.username, hashedPassword);
+  if (result.changes > 0) {
+    console.log(`✅ 账号 ${u.username} 已初始化`);
+  } else {
+    console.log(`ℹ️  账号 ${u.username} 已存在，跳过`);
+  }
+});
+
+db.close();
+console.log('✅ 用户初始化完成');

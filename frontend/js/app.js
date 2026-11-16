@@ -52,6 +52,21 @@ const SOURCE_LABEL = {
 document.addEventListener('DOMContentLoaded', init);
 
 async function init() {
+  // 显示当前用户
+  const username = localStorage.getItem('username');
+  if (username) {
+    document.getElementById('currentUser').textContent = `👤 ${username}`;
+  }
+  
+  // 绑定退出按钮
+  document.getElementById('btnLogout').addEventListener('click', () => {
+    if (confirm('确定要退出登录吗？')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      window.location.href = '/login.html';
+    }
+  });
+  
   onAuthRequired(() => {
     const input = window.prompt('该服务已开启访问口令，请输入 API_TOKEN：');
     return input;

@@ -43,10 +43,19 @@ async function ensureDetail(code) {
 /**
  * 组装完整组合视图：持仓 + 实时净值 + 收益 + 提醒。
  * 这是首页唯一的聚合入口，避免前端分别请求 holdings/summary 造成重复抓取。
+ * @param {Object} options - 配置选项
+ * @param {string} [options.today] - 日期字符串
+ * @param {boolean} [options.refresh] - 是否强制刷新
+ * @param {number} [options.userId] - 用户ID（用于数据隔离）
  */
 async function buildPortfolio(options = {}) {
   const today = options.today || todayString();
-  const holdings = db.all('SELECT * FROM holdings ORDER BY buy_date ASC, id ASC');
+  const userId = options.userId;
+  
+  // 根据是否传入 userId 决定查询范围
+  const holdings = userId
+    ? db.all('SELECT * FROM holdings WHERE user_id = ? ORDER BY buy_date ASC, id ASC', [userId])
+    : db.all('SELECT * FROM holdings ORDER BY buy_date ASC, id ASC');
 
   if (holdings.length === 0) {
     const summary = emptySummary();

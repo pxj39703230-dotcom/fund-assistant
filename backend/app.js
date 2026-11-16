@@ -36,6 +36,10 @@ app.get('/health', (req, res) => {
   });
 });
 
+// 登录接口（不需要 token）
+app.use('/api/auth', require('./http/routes/auth'));
+
+// 其他所有 API 接口都需要 token
 app.use('/api', requireToken);
 
 app.use('/api/holdings', require('./http/routes/holdings'));

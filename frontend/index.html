@@ -12,6 +12,24 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-title" content="基金助手">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  
+  <!-- 登录校验 -->
+  <script>
+    (function() {
+      const token = localStorage.getItem('token');
+      const currentPath = window.location.pathname;
+      
+      // 如果未登录且不在登录页，跳转到登录页
+      if (!token && !currentPath.endsWith('login.html')) {
+        window.location.href = '/login.html';
+      }
+      
+      // 如果已登录且在登录页，跳转到首页
+      if (token && currentPath.endsWith('login.html')) {
+        window.location.href = '/';
+      }
+    })();
+  </script>
 </head>
 <body>
   <div class="app">
@@ -25,10 +43,12 @@
         </div>
       </div>
       <div class="topbar-actions">
+        <span id="currentUser" style="color: #666; font-size: 14px; margin-right: 12px;"></span>
         <button type="button" class="btn ghost" id="btnSync">同步净值</button>
         <button type="button" class="btn ghost" id="btnReview">生成复盘</button>
         <button type="button" class="btn ghost" id="btnSettings">AI 设置</button>
         <button type="button" class="btn primary" id="btnRefresh">刷新</button>
+        <button type="button" class="btn ghost" id="btnLogout" style="margin-left: 8px; background: #e74c3c; color: white;">退出</button>
       </div>
     </header>
 

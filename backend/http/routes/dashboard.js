@@ -4,9 +4,13 @@ const express = require('express');
 const portfolioService = require('../../services/portfolioService');
 const dashboardService = require('../../services/dashboardService');
 const { createLogger } = require('../../utils/logger');
+const authMiddleware = require('../middleware/auth');
 
 const router = express.Router();
 const log = createLogger('dashboard-routes');
+
+// 所有 dashboard 接口都需要登录
+router.use(authMiddleware);
 
 /**
  * GET /api/dashboard
@@ -14,10 +18,11 @@ const log = createLogger('dashboard-routes');
  */
 router.get('/', async (req, res, next) => {
   try {
-    // 先获取完整的portfolio数据
+    // 先获取完整的portfolio数据，传入当前用户ID
     const portfolioData = await portfolioService.buildPortfolio({
       today: req.query.today,
-      refresh: Boolean(req.query.refresh)
+      refresh: Boolean(req.query.refresh),
+      userId: req.userId
     });
 
     // 转换为新手友好的dashboard格式
@@ -50,12 +55,12 @@ router.post('/quick-action/:actionId', async (req, res, next) => {
       });
     }
 
-    // 获取持仓信息
-    const holding = db.get('SELECT * FROM holdings WHERE id = ?', [action.holding_id]);
+    // 获取持仓信息 - 只能访问自己的持仓
+    const holding = db.get('SELECT * FROM holdings WHERE id = ? AND user_id = ?', [action.holding_id, req.userId]);
     if (!holding) {
       return res.status(404).json({
         success: false,
-        message: '持仓不存在'
+        message: '持仓不存在或无权限'
       });
     }
 
