@@ -1,8 +1,17 @@
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
 const path = require('path');
+const fs = require('fs');
 
 const dbPath = path.join(__dirname, '..', 'data', 'fund.db');
+const dbDir = path.dirname(dbPath);
+
+// 确保目录存在
+if (!fs.existsSync(dbDir)) {
+  fs.mkdirSync(dbDir, { recursive: true });
+  console.log('✅ 已创建数据库目录:', dbDir);
+}
+
 const db = new Database(dbPath);
 
 // 创建 users 表
@@ -14,6 +23,16 @@ db.exec(`
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )
 `);
+
+// 为 holdings 表添加 user_id 字段
+try {
+  db.exec('ALTER TABLE holdings ADD COLUMN user_id INTEGER DEFAULT 1');
+  console.log('✅ holdings 表已添加 user_id 字段');
+} catch (err) {
+  if (!err.message.includes('duplicate column name')) {
+    console.warn('⚠️ 添加 user_id 字段时出错:', err.message);
+  }
+}
 
 
 
