@@ -63,8 +63,7 @@ try {
   db.close();
   console.log('✅ 用户初始化完成');
 } catch (err) {
-  console.error('❌ 初始化失败:', err.message);
-  // 不中断启动流程，让服务继续运行
-  process.exit(0);
+  console.error('⚠️  初始化失败，但不影响服务启动:', err.message);
+  // 不退出进程，让服务继续启动
 }
 

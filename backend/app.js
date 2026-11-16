@@ -39,8 +39,8 @@ app.get('/health', (req, res) => {
 // 登录接口（不需要 token）
 app.use('/api/auth', require('./http/routes/auth'));
 
-// 其他所有 API 接口都需要 token
-app.use('/api', requireToken);
+// 其他所有 API 接口已在各自路由中通过 authMiddleware 验证 JWT token
+// 注意：不再使用全局的 requireToken，改用 JWT 认证
 
 app.use('/api/holdings', require('./http/routes/holdings'));
 app.use('/api/portfolio', require('./http/routes/portfolio'));
