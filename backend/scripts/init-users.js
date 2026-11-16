@@ -35,18 +35,14 @@ try {
     { username: 'sgw', password: 'sgw123' }
   ];
 
-  // 先删除旧用户，确保密码更新
-  const deleteStmt = db.prepare('DELETE FROM users WHERE username = ?');
-  users.forEach(u => {
-    deleteStmt.run(u.username);
-  });
+  const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
 
-  // 插入新用户
-  const insertStmt = db.prepare('INSERT INTO users (username, password) VALUES (?, ?)');
   users.forEach(u => {
     const hashedPassword = bcrypt.hashSync(u.password, 10);
-    insertStmt.run(u.username, hashedPassword);
-    console.log(`✅ 账号 ${u.username} 已初始化（密码：${u.password}）`);
+    const result = stmt.run(u.username, hashedPassword);
+    if (result.changes > 0) {
+      console.log(`User ${u.username} created`);
+    }
   });
 
   db.close();
