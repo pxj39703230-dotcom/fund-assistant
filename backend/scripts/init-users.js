@@ -66,4 +66,3 @@ try {
   console.error('⚠️  初始化失败，但不影响服务启动:', err.message);
   // 不退出进程，让服务继续启动
 }
-
