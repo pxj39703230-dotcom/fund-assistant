@@ -35,14 +35,12 @@ try {
     { username: 'sgw', password: 'sgw123' }
   ];
 
-  const stmt = db.prepare('INSERT OR IGNORE INTO users (username, password) VALUES (?, ?)');
+  const stmt = db.prepare('INSERT OR REPLACE INTO users (username, password) VALUES (?, ?)');
 
   users.forEach(u => {
     const hashedPassword = bcrypt.hashSync(u.password, 10);
     const result = stmt.run(u.username, hashedPassword);
-    if (result.changes > 0) {
-      console.log(`User ${u.username} created`);
-    }
+    console.log(`User ${u.username} ready`);
   });
 
   db.close();
