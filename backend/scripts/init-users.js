@@ -25,8 +25,9 @@ db.exec(`
 `);
 
 // 创建 holdings 表
+db.exec('DROP TABLE IF EXISTS holdings');
 db.exec(`
-  CREATE TABLE IF NOT EXISTS holdings (
+  CREATE TABLE holdings (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     fund_code TEXT NOT NULL,
     fund_name TEXT,
