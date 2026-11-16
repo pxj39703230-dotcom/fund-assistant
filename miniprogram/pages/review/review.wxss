@@ -1,0 +1,10 @@
+.intro-card { border-top: 5rpx solid #0f766e; }
+.tabs { display: flex; gap: 10rpx; margin: 16rpx 0; }
+.tab { flex: 1; text-align: center; padding: 12rpx 0; border-radius: 12rpx; background: #f1f5f9; color: #52677a; font-size: 24rpx; }
+.tab.active { background: #0f766e; color: #ffffff; font-weight: 600; }
+.review-card { border-left: 5rpx solid #d8e3ec; }
+.review-date { font-size: 27rpx; font-weight: 700; }
+.metrics-mini { display: grid; grid-template-columns: 1fr 1fr; gap: 8rpx; margin: 14rpx 0; }
+.metric-mini { display: flex; justify-content: space-between; gap: 8rpx; padding: 10rpx 12rpx; border-radius: 10rpx; background: #f8fbfd; font-size: 22rpx; }
+.review-content { font-size: 23rpx; color: #334155; line-height: 1.8; margin-top: 10rpx; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }

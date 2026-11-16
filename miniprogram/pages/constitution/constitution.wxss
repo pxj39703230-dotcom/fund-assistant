@@ -1,0 +1,21 @@
+.intro-card { border-top: 5rpx solid #0f766e; }
+.rule-item { display: flex; align-items: center; justify-content: space-between; gap: 16rpx; padding: 18rpx 0; border-top: 1rpx dashed #edf2f7; }
+.rule-item:first-child { border-top: 0; padding-top: 0; }
+.rule-text { flex: 1; }
+.rule-name { font-size: 25rpx; font-weight: 600; }
+.rule-input-wrap { display: flex; align-items: center; gap: 6rpx; flex: 0 0 auto; }
+.rule-input { width: 120rpx; height: 64rpx; padding: 0 10rpx; border: 1rpx solid #d8e3ec; border-radius: 10rpx; text-align: right; font-size: 25rpx; box-sizing: border-box; }
+.unit { font-size: 22rpx; color: #7b8b9a; width: 32rpx; }
+.save-btn { margin-top: 10rpx; }
+.test-card { border-top: 5rpx solid #f59e0b; }
+.result-head { font-size: 27rpx; font-weight: 700; margin-bottom: 4rpx; }
+.failed { margin-top: 12rpx; }
+.failed-title { font-size: 24rpx; font-weight: 700; color: #b42318; }
+.failed-row { font-size: 23rpx; color: #b42318; line-height: 1.7; }
+.rule-row { padding: 12rpx 0; border-top: 1rpx dashed #edf2f7; }
+.rule-row .row { font-size: 24rpx; }
+.mark { font-weight: 700; }
+.mark.ok { color: #067647; }
+.mark.bad { color: #b42318; }
+.line { font-size: 23rpx; color: #334155; line-height: 1.8; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }

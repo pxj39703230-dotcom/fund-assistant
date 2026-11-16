@@ -1,0 +1,141 @@
+<view class="container">
+  <view class="hero card">
+    <view class="row">
+      <view>
+        <view class="hero-title">基金投资助手</view>
+        <view class="tiny">v{{version}} · {{today}} · {{updatedText}}</view>
+      </view>
+      <button class="btn primary small" bindtap="goRefresh">刷新</button>
+    </view>
+    <scroll-view scroll-x class="market-scroll" wx:if="{{indices.length}}">
+      <view class="market-line">
+        <view class="index-item" wx:for="{{indices}}" wx:key="name">
+          <text class="index-name">{{item.name}}</text>
+          <text class="index-price">{{item.price}}</text>
+          <text class="index-pct {{item.pctClass}}">{{item.pctText}}</text>
+        </view>
+      </view>
+    </scroll-view>
+    <view class="market-state" wx:if="{{market}}">{{market.stateLabel}} · 行情会随交易时段变化</view>
+  </view>
+
+  <view class="notice error" wx:if="{{error}}">
+    <view>{{error}}</view>
+    <button class="btn ghost small retry" bindtap="goRefresh">重试</button>
+  </view>
+
+  <view class="alert-card card" wx:if="{{alerts.length}}">
+    <view class="section-title">
+      <text>需要你知道</text>
+      <text class="action-link" bindtap="markAlertsRead">全部已读</text>
+    </view>
+    <view class="alert-item" wx:for="{{alerts}}" wx:key="id">
+      <view class="alert-dot {{item.cls}}"></view>
+      <view class="alert-body">
+        <view class="alert-title">{{item.title}}</view>
+        <view class="tiny">{{item.message}}</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">
+      <text>资产总览</text>
+      <text>{{today}}</text>
+    </view>
+    <view class="metrics">
+      <view class="metric" wx:for="{{metrics}}" wx:key="label">
+        <view class="metric-label">{{item.label}}</view>
+        <view class="metric-value {{item.cls}}">{{item.value}}</view>
+        <view class="metric-note">{{item.note}}</view>
+      </view>
+    </view>
+    <view class="dist" wx:if="{{weights.length}}">
+      <view class="dist-bar">
+        <view class="dist-seg" wx:for="{{weights}}" wx:key="code" style="width:{{item.width}}%;background:{{item.color}}"></view>
+      </view>
+      <view class="dist-label" wx:for="{{weights}}" wx:key="code">
+        <view class="dist-dot" style="background:{{item.color}}"></view>
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+    <view class="tiny summary-note">{{summaryNote}}</view>
+  </view>
+
+  <view class="card advice-card" wx:if="{{plan}}">
+    <view class="section-title">
+      <text>今天怎么办</text>
+      <text>{{plan.headline}}</text>
+    </view>
+    <view class="plan-head">{{plan.headline}}</view>
+    <view class="muted">{{plan.subline}}</view>
+    <view class="plan-action" wx:for="{{plan.actions}}" wx:key="code">
+      <view class="row">
+        <text class="plan-name">{{item.name}}</text>
+        <text class="chip {{item.tone}}">{{item.verdictLabel}}</text>
+      </view>
+      <view class="tiny">{{item.action}}</view>
+    </view>
+    <view class="flag" wx:for="{{plan.flags}}" wx:key="title">
+      <text class="flag-title">{{item.title}}</text>
+      <text class="tiny">{{item.text}}</text>
+    </view>
+  </view>
+
+  <view class="card constitution-mini" wx:if="{{constitution}}">
+    <view class="section-title">
+      <text>我的投资宪法</text>
+      <text class="action-link" bindtap="goConstitution">改规则</text>
+    </view>
+    <view class="rule-grid">
+      <view class="rule-mini" wx:for="{{constitution.items}}" wx:key="label">
+        <view class="rule-label">{{item.label}}</view>
+        <view class="rule-value">{{item.value}}</view>
+      </view>
+    </view>
+    <view class="notice {{item.cls}}" wx:for="{{constitution.audit}}" wx:key="label">
+      <b>{{item.label}}</b>：{{item.text}}
+    </view>
+    <view class="notice ok" wx:if="{{constitution.enabled && !constitution.audit.length}}">当前组合没有触发宪法的硬规则。买入前还会逐笔核对。</view>
+    <view class="notice info" wx:if="{{!constitution.enabled}}">宪法已停用；体检还会给建议，但不会再用你的硬规则拦。</view>
+    <button class="btn ghost small full" bindtap="goConstitution">按具体金额核对一笔买入</button>
+  </view>
+
+  <view class="quick-grid">
+    <view class="quick" bindtap="goCheck"><text class="quick-title">买前体检</text><text class="tiny">先算亏多少钱</text></view>
+    <view class="quick" bindtap="goAsk"><text class="quick-title">问一问</text><text class="tiny">现在该不该动</text></view>
+    <view class="quick" bindtap="goConstitution"><text class="quick-title">投资宪法</text><text class="tiny">下单前先过线</text></view>
+    <view class="quick" bindtap="goReview"><text class="quick-title">复盘</text><text class="tiny">看看昨天判断</text></view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">
+      <text>我的持仓</text>
+      <text class="action-link" bindtap="goPositions">全部持仓 →</text>
+    </view>
+    <view class="position-card" wx:for="{{positions}}" wx:key="id" bindtap="goPosition" data-code="{{item.code}}">
+      <view class="row">
+        <view class="position-name">{{item.name}}</view>
+        <text class="chip {{item.tone}}">{{item.verdict}}</text>
+      </view>
+      <view class="position-code">{{item.code}} · 持有 {{item.holdDays}} 天 <text wx:if="{{item.stale}}">· 净值未更新</text></view>
+      <view class="position-row">
+        <text>市值 {{item.valueText}}</text>
+        <text class="{{item.realClass}}">真实 {{item.realText}}（{{item.rateText}}）</text>
+      </view>
+      <view class="position-row">
+        <text>买入 {{item.costText}}</text>
+        <text class="{{item.todayClass}}">今日 {{item.todayText}}</text>
+      </view>
+      <view class="tiny">{{item.navText}}</view>
+      <view class="position-action" wx:if="{{item.action}}">{{item.action}}</view>
+      <view class="trigger-row" wx:if="{{item.triggers.length}}">
+        <text class="trigger" wx:for="{{item.triggers}}" wx:for-item="trigger" wx:key="*this">{{trigger}}</text>
+      </view>
+    </view>
+    <view class="empty" wx:if="{{!positions.length}}">还没有持仓。先去「添加持仓」，再让程序替你盯。</view>
+    <button class="btn primary full" bindtap="goCheck">先做一笔买入体检</button>
+  </view>
+
+  <view class="tiny foot-note">数据来自你电脑上的 fund.db；小程序只是另一块屏幕。</view>
+</view>

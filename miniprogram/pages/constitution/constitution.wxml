@@ -1,0 +1,111 @@
+<view class="container">
+  <view class="card intro-card">
+    <view class="section-title"><text>我的投资宪法</text><text>{{savedText ? '更新于 ' + savedText : ''}}</text></view>
+    <view class="muted">这不是收益目标，是你下单前必须过的一把尺。体检和问一问都会先核对它。</view>
+    <view class="notice error" wx:if="{{error}}">{{error}}</view>
+  </view>
+
+  <view class="card">
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">启用宪法</view>
+        <view class="tiny">关掉后仍会给建议，但不会用硬规则拦你</view>
+      </view>
+      <switch checked="{{form.enabled}}" color="#0f766e" bindchange="onEnabled" />
+    </view>
+
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">单只基金最多占组合</view>
+        <view class="tiny">超过就不许再加仓；第一只基金不受这条限制</view>
+      </view>
+      <view class="rule-input-wrap"><input class="rule-input" type="digit" value="{{form.maxSingleWeight}}" data-field="maxSingleWeight" bindinput="onNumber" /><text class="unit">%</text></view>
+    </view>
+
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">单笔最多亏</view>
+        <view class="tiny">按“买入金额 × 止损线”估算，不是保证只亏这么多</view>
+      </view>
+      <view class="rule-input-wrap"><input class="rule-input" type="digit" value="{{form.maxLossPerBuy}}" data-field="maxLossPerBuy" bindinput="onNumber" /><text class="unit">元</text></view>
+    </view>
+
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">新基金首笔最多</view>
+        <view class="tiny">第一次买某只基金，先小仓位试水</view>
+      </view>
+      <view class="rule-input-wrap"><input class="rule-input" type="digit" value="{{form.maxFirstBuy}}" data-field="maxFirstBuy" bindinput="onNumber" /><text class="unit">元</text></view>
+    </view>
+
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">体检分至少</view>
+        <view class="tiny">低于这个分，体检直接判不通过</view>
+      </view>
+      <view class="rule-input-wrap"><input class="rule-input" type="digit" value="{{form.minCheckScore}}" data-field="minCheckScore" bindinput="onNumber" /><text class="unit">分</text></view>
+    </view>
+
+    <view class="rule-item">
+      <view class="rule-text">
+        <view class="rule-name">最多持有基金</view>
+        <view class="tiny">超过后不再建议买入新基金</view>
+      </view>
+      <view class="rule-input-wrap"><input class="rule-input" type="digit" value="{{form.maxFunds}}" data-field="maxFunds" bindinput="onNumber" /><text class="unit">只</text></view>
+    </view>
+
+    <button class="btn primary full save-btn" bindtap="save" loading="{{loading}}">保存规则</button>
+    <view class="tiny">改完会立即用于下一次体检和问一问。</view>
+  </view>
+
+  <view class="card" wx:if="{{audit.length}}">
+    <view class="section-title"><text>当前组合体检</text><text>{{auditLevel}}</text></view>
+    <view class="notice {{item.cls}}" wx:for="{{audit}}" wx:key="label">
+      <b>{{item.label}}</b>：{{item.text}}
+    </view>
+  </view>
+
+  <view class="card test-card">
+    <view class="section-title"><text>按金额核对一笔</text><text>不猜，直接算</text></view>
+    <view class="grid-2">
+      <view class="field">
+        <text class="field-label">基金代码</text>
+        <input class="input" type="number" maxlength="6" value="{{testCode}}" bindinput="onTestCode" />
+      </view>
+      <view class="field">
+        <text class="field-label">准备买多少（元）</text>
+        <input class="input" type="digit" value="{{testAmount}}" bindinput="onTestAmount" />
+      </view>
+    </view>
+    <button class="btn primary full" bindtap="testBuy" loading="{{testLoading}}" disabled="{{testLoading}}">核对宪法</button>
+    <view class="notice error" wx:if="{{testError}}">{{testError}}</view>
+  </view>
+
+  <view class="card result-card" wx:if="{{result}}">
+    <view class="notice {{result.cls}}">
+      <view class="result-head">{{result.passed ? '这笔通过宪法核对' : '这笔不通过，先别买'}}</view>
+      <view>{{result.headline}}</view>
+    </view>
+    <view class="tiny">{{result.mode}} {{result.amount}} · 买入后单只占比 {{result.postWeight}}</view>
+    <view class="failed" wx:if="{{result.failed.length}}">
+      <view class="failed-title">没有通过的条款</view>
+      <view class="failed-row" wx:for="{{result.failed}}" wx:key="*this">· {{item}}</view>
+    </view>
+    <view class="rule-row" wx:for="{{result.rules}}" wx:key="key">
+      <view class="row">
+        <text><text class="mark {{item.cls}}">{{item.passed ? '✓' : '✕'}}</text> {{item.label}}</text>
+      </view>
+      <view class="tiny">{{item.detail}}</view>
+    </view>
+    <button class="btn ghost small full" bindtap="testBuy">按这个金额再算一次</button>
+  </view>
+
+  <view class="card">
+    <view class="section-title"><text>这条规矩为什么这样定</text></view>
+    <view class="line">· 单只上限防的是“赚的时候觉得自己对，亏的时候才发现全押一只”。</view>
+    <view class="line">· 单笔亏损上限是让你在最坏情况下还能睡着，不是预测会亏这么多。</view>
+    <view class="line">· 首笔上限让你先验证自己拿不拿得住，再谈加仓。</view>
+    <view class="line">· 体检分下限是防止你在趋势和位置都不对的时候被“最近涨得好”带走。</view>
+  </view>
+  <view class="tiny foot-note">规则存在电脑 fund.db 的 settings 表里，不会因为换手机丢失。</view>
+</view>

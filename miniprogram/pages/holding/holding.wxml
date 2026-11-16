@@ -1,0 +1,69 @@
+<view class="container">
+  <view class="card intro-card">
+    <view class="section-title"><text>{{isEdit ? '编辑持仓纪律' : '添加持仓'}}</text><text>{{isEdit ? '只改纪律' : '记真实买入'}}</text></view>
+    <view class="muted">{{isEdit ? '买入信息不能在这里改；可以重新添加一笔，再删掉旧的。' : '按你实际买入的金额和当天净值记，程序会自动算份额和费用。'}}</view>
+    <view class="notice error" wx:if="{{error}}">{{error}}</view>
+  </view>
+
+  <view class="card">
+    <view class="field">
+      <text class="field-label">基金代码</text>
+      <input class="input" type="number" maxlength="6" placeholder="6 位代码，例如 110022" value="{{form.code}}" disabled="{{isEdit}}" bindinput="onCodeInput" bindblur="preview" />
+    </view>
+    <view class="tiny preview-line" wx:if="{{previewHint}}">{{previewHint}}</view>
+
+    <view class="field">
+      <text class="field-label">买入日期</text>
+      <picker mode="date" value="{{form.buyDate}}" bindchange="onDate" disabled="{{isEdit}}">
+        <view class="picker-value">{{form.buyDate || '选择日期'}}</view>
+      </picker>
+    </view>
+
+    <view class="grid-2">
+      <view class="field">
+        <text class="field-label">买入金额（元）</text>
+        <input class="input" type="digit" placeholder="例如 1000" value="{{form.buyAmount}}" disabled="{{isEdit}}" data-field="buyAmount" bindinput="onInput" />
+      </view>
+      <view class="field">
+        <text class="field-label">买入净值</text>
+        <input class="input" type="digit" placeholder="例如 1.7444" value="{{form.buyNetValue}}" disabled="{{isEdit}}" data-field="buyNetValue" bindinput="onInput" />
+      </view>
+    </view>
+    <view class="tiny" wx:if="{{!isEdit}}">点一下基金代码，能自动带出最新净值；如果买的是历史净值，手动改。</view>
+
+    <view class="divider"></view>
+
+    <view class="grid-2">
+      <view class="field">
+        <text class="field-label">止盈线（%）</text>
+        <input class="input" type="digit" placeholder="30" value="{{form.targetProfit}}" data-field="targetProfit" bindinput="onInput" />
+      </view>
+      <view class="field">
+        <text class="field-label">止损线（%）</text>
+        <input class="input" type="digit" placeholder="20" value="{{form.stopLoss}}" data-field="stopLoss" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="field">
+      <text class="field-label">持有策略</text>
+      <picker range="{{strategyOptions}}" value="{{strategyIndex}}" bindchange="onStrategy">
+        <view class="picker-value">{{strategyOptions[strategyIndex]}}</view>
+      </picker>
+    </view>
+
+    <view class="field">
+      <text class="field-label">备注（可不填）</text>
+      <input class="input" placeholder="例如：第一次试水 / 发工资后定投" value="{{form.note}}" data-field="note" bindinput="onInput" />
+    </view>
+
+    <button class="btn primary full submit-btn" bindtap="submit" loading="{{loading}}" disabled="{{loading}}">{{isEdit ? '保存纪律' : '添加这笔持仓'}}</button>
+  </view>
+
+  <view class="card">
+    <view class="section-title"><text>记之前先想清楚</text></view>
+    <view class="line">· 止损线填 20，意思是亏 20% 就准备走，不是保证只亏 20%。</view>
+    <view class="line">· 新基金第一笔别超过你宪法里的“首笔上限”。</view>
+    <view class="line">· 买入净值填错，份额就会算错；拿不准就用交割单上的净值。</view>
+  </view>
+  <view class="tiny foot-note">新增会写进电脑上的 fund.db，和网站共用同一份数据。</view>
+</view>

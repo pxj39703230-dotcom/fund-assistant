@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>基金投资助手</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css?v=1.6">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b4f6c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="基金助手">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo">基</span>
+        <div class="brand-text">
+          <h1>基金投资助手</h1>
+          <p id="marketLine" class="market-line">正在读取行情…</p>
+          <p id="marketSub" class="brand-sub"></p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="btn ghost" id="btnSync">同步净值</button>
+        <button type="button" class="btn ghost" id="btnReview">生成复盘</button>
+        <button type="button" class="btn ghost" id="btnSettings">AI 设置</button>
+        <button type="button" class="btn primary" id="btnRefresh">刷新</button>
+      </div>
+    </header>
+
+    <div id="noticeBar" class="notice hidden" role="status"></div>
+    <div id="alertBar" class="alert-bar hidden"></div>
+
+    <!-- 主导航标签页 -->
+    <nav class="main-tabs">
+      <button type="button" class="main-tab active" data-page="overview">
+        <span class="tab-icon">📊</span>
+        <span class="tab-label">总览</span>
+      </button>
+      <button type="button" class="main-tab" data-page="holdings">
+        <span class="tab-icon">💼</span>
+        <span class="tab-label">持仓</span>
+      </button>
+      <button type="button" class="main-tab" data-page="analysis">
+        <span class="tab-icon">📈</span>
+        <span class="tab-label">分析</span>
+      </button>
+      <button type="button" class="main-tab" data-page="more">
+        <span class="tab-icon">⚙️</span>
+        <span class="tab-label">更多</span>
+      </button>
+    </nav>
+
+    <main>
+      <section class="panel" data-page="overview" aria-labelledby="summaryTitle">
+        <div class="panel-head">
+          <h2 id="summaryTitle">资产总览</h2>
+          <span class="hint" id="summaryMeta">—</span>
+        </div>
+
+        <div class="metrics">
+          <div class="metric">
+            <label>累计投入</label>
+            <strong id="mInvest">—</strong>
+            <span class="sub">买入金额合计</span>
+          </div>
+          <div class="metric">
+            <label>当前市值</label>
+            <strong id="mValue">—</strong>
+            <span class="sub">净值 × 份额</span>
+          </div>
+          <div class="metric">
+            <label>真实盈亏</label>
+            <strong id="mReal">—</strong>
+            <span class="sub">已扣申购费</span>
+          </div>
+          <div class="metric">
+            <label>净收益（现在赎回）</label>
+            <strong id="mNet">—</strong>
+            <span class="sub">已扣申购费 + 赎回费</span>
+          </div>
+          <div class="metric">
+            <label>今日盈亏</label>
+            <strong id="mToday">—</strong>
+            <span class="sub">按最新日涨跌估算</span>
+          </div>
+          <div class="metric">
+            <label>持仓</label>
+            <strong id="mCount">—</strong>
+            <span class="sub" id="mCountSub">笔</span>
+          </div>
+        </div>
+
+        <div class="allocation">
+          <div class="allocation-head">
+            <span>持仓分布</span>
+            <span class="alloc-legend" id="allocLegend"></span>
+          </div>
+          <div class="alloc-bar" id="allocBar"></div>
+        </div>
+
+        <p class="footnote">
+          口径说明：<b>账面盈亏</b>只按净值涨跌计算；<b>真实盈亏</b>扣掉申购费（管理费、托管费已包含在公布净值里，不重复扣）；
+          <b>净收益</b>按此刻全部赎回、扣掉赎回费后实际到账测算。持有天数按自然日估算，实际以基金确认日为准。
+        </p>
+      </section>
+
+      <section class="panel advice-panel" data-page="overview" aria-labelledby="adviceTitle">
+        <div class="panel-head">
+          <h2 id="adviceTitle">今天怎么办</h2>
+          <span class="hint" id="adviceMeta">—</span>
+        </div>
+        <div id="adviceHead" class="advice-head tone-info">加载中…</div>
+        <div id="adviceActions" class="advice-actions"></div>
+        <div id="adviceFlags" class="advice-flags"></div>
+        <div id="reviewLink" class="review-link hidden"></div>
+        <details class="advice-basis">
+          <summary>这些结论是怎么来的？</summary>
+          <div class="basis-body">
+            <p>程序只看四件事：<b>趋势</b>（净值站不站得住 20/50 日均线）、<b>回撤</b>（从买入后高点跌了多少）、<b>费率</b>（按持有天数算赎回费档）、<b>你自己设的止盈止损线</b>。不预测涨跌，只把纪律翻译成动作。</p>
+            <p><b>长线</b> = 债券/指数类，按年拿、一年看几次；<b>波段</b> = 行业主题、波动大的品种，跌破均线就走。判断不对可以在持仓「编辑」里改策略。</p>
+            <p class="muted">仅为个人规则提示，不构成投资建议；买卖决定与盈亏由你自己承担。</p>
+          </div>
+        </details>
+      </section>
+
+
+      <section class="panel constitution-panel" data-page="overview" aria-labelledby="constitutionTitle">
+        <div class="panel-head">
+          <h2 id="constitutionTitle">我的投资宪法</h2>
+          <button type="button" class="btn ghost small" id="btnConstEdit">改规则</button>
+        </div>
+        <p class="panel-lead">下单前先过一遍你自己定的硬规则。商业平台不会拦你，这里会。</p>
+        <div id="constitutionRules" class="const-rules"><div class="empty">加载中…</div></div>
+        <div id="constitutionAudit" class="const-audit"></div>
+
+        <form id="constitutionForm" class="const-form hidden" autocomplete="off">
+          <label class="const-toggle">
+            <input type="checkbox" id="constEnabled" checked>
+            <span>启用宪法拦截</span>
+          </label>
+          <div class="const-grid">
+            <div class="field">
+              <label for="constWeight">单只最多占比（%）</label>
+              <input type="number" id="constWeight" min="10" max="100" step="1" value="30">
+            </div>
+            <div class="field">
+              <label for="constLoss">单笔最多亏（元）</label>
+              <input type="number" id="constLoss" min="1" max="100000" step="1" value="50">
+            </div>
+            <div class="field">
+              <label for="constFirst">新基金首笔最多（元）</label>
+              <input type="number" id="constFirst" min="10" max="100000" step="10" value="300">
+            </div>
+            <div class="field">
+              <label for="constScore">体检分至少</label>
+              <input type="number" id="constScore" min="0" max="100" step="1" value="55">
+            </div>
+            <div class="field">
+              <label for="constFunds">最多持有几只</label>
+              <input type="number" id="constFunds" min="1" max="20" step="1" value="5">
+            </div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn ghost" id="btnConstCancel">取消</button>
+            <button type="submit" class="btn primary" id="btnConstSave">保存规则</button>
+          </div>
+        </form>
+
+        <details class="const-check">
+          <summary>按具体金额核对一笔买入</summary>
+          <form id="constCheckForm" class="const-check-form" autocomplete="off">
+            <div class="field">
+              <label for="constCheckCode">基金代码</label>
+              <input type="text" id="constCheckCode" inputmode="numeric" maxlength="6" placeholder="如 110022" required>
+            </div>
+            <div class="field">
+              <label for="constCheckAmount">准备买多少（元）</label>
+              <input type="number" id="constCheckAmount" min="1" step="1" value="100" required>
+            </div>
+            <button type="submit" class="btn ghost" id="btnConstCheck">核对</button>
+          </form>
+          <div id="constitutionCheckResult" class="const-check-result"></div>
+        </details>
+      </section>
+
+      <section class="panel" data-page="holdings" aria-labelledby="addTitle">
+        <div class="panel-head">
+          <h2 id="addTitle">添加持仓</h2>
+          <span class="hint">输入 6 位代码后会自动带出名称与最新净值</span>
+        </div>
+
+        <form id="addForm" class="form" autocomplete="off">
+          <div class="field code-field">
+            <label for="fundCode">基金代码</label>
+            <input type="text" id="fundCode" name="fundCode" inputmode="numeric" maxlength="6" placeholder="如 110022" required>
+            <span class="field-hint" id="codeHint"></span>
+          </div>
+          <div class="field">
+            <label for="buyDate">买入日期</label>
+            <input type="date" id="buyDate" name="buyDate" required>
+          </div>
+          <div class="field">
+            <label for="buyAmount">买入金额（元）</label>
+            <input type="number" id="buyAmount" name="buyAmount" step="0.01" min="0.01" placeholder="1000.00" required>
+          </div>
+          <div class="field">
+            <label for="buyNetValue">买入净值</label>
+            <input type="number" id="buyNetValue" name="buyNetValue" step="0.0001" min="0.0001" placeholder="2.5000" required>
+          </div>
+          <div class="field">
+            <label for="targetProfit">止盈线（%）</label>
+            <input type="number" id="targetProfit" name="targetProfit" step="1" min="0" max="200" value="30">
+          </div>
+          <div class="field">
+            <label for="stopLoss">止损线（%）</label>
+            <input type="number" id="stopLoss" name="stopLoss" step="1" min="0" max="100" value="20">
+          </div>
+          <div class="field strategy-field">
+            <label for="addStrategy">持有策略</label>
+            <select id="addStrategy" name="addStrategy">
+              <option value="auto">自动判断</option>
+              <option value="long">长线（一年以上）</option>
+              <option value="swing">波段（1-3 个月）</option>
+            </select>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn ghost" id="btnCheckBuy">买前体检</button>
+            <button type="submit" class="btn primary" id="btnAdd">添加持仓</button>
+          </div>
+        </form>
+
+        <div id="preview" class="preview hidden"></div>
+      </section>
+
+      <section class="panel watchlist-panel" data-page="holdings" aria-labelledby="watchTitle">
+        <div class="panel-head">
+          <h2 id="watchTitle">想买，先放一晚</h2>
+          <span class="hint">强制冷静 24 小时 · 到期再体检</span>
+        </div>
+        <p class="panel-lead">商业 App 恨不得你马上下单；这里反过来——先写下为什么想买，明天再看还成不成立。</p>
+        <div id="watchlistList" class="watch-list"><div class="empty">加载中…</div></div>
+        <form id="watchlistForm" class="watch-form" autocomplete="off">
+          <div class="field">
+            <label for="watchCode">基金代码</label>
+            <input type="text" id="watchCode" inputmode="numeric" maxlength="6" placeholder="如 110022" required>
+          </div>
+          <div class="field">
+            <label for="watchNav">目标净值（可不填）</label>
+            <input type="number" id="watchNav" step="0.0001" min="0.0001" placeholder="跌到这个价再考虑">
+          </div>
+          <div class="field full">
+            <label for="watchReason">为什么想买（写一句，明天回头看）</label>
+            <input type="text" id="watchReason" maxlength="200" placeholder="例：看好消费复苏 / 朋友说最近涨得好">
+          </div>
+          <div class="form-actions">
+            <button type="submit" class="btn primary" id="btnWatchAdd">加入冷静期</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel" data-page="holdings" aria-labelledby="positionsTitle">
+        <div class="panel-head">
+          <h2 id="positionsTitle">我的持仓</h2>
+          <span class="hint" id="positionsMeta"></span>
+        </div>
+        <div id="positions" class="cards">
+          <div class="empty">加载中…</div>
+        </div>
+      </section>
+
+      <section class="panel" data-page="analysis" aria-labelledby="analysisTitle">
+        <div class="panel-head">
+          <h2 id="analysisTitle">深度分析</h2>
+          <div class="tabs" id="analysisTabs">
+            <button type="button" class="tab active" data-view="dca">定投测算</button>
+            <button type="button" class="tab" data-view="benchmark">对比沪深300</button>
+            <button type="button" class="tab" data-view="attribution">收益归因</button>
+          </div>
+        </div>
+
+        <div id="analysisBody" class="analysis-body">
+          <div class="analysis-view" data-view="dca">
+            <div class="dca-form">
+              <div class="field">
+                <label for="dcaCode">基金代码</label>
+                <input id="dcaCode" type="text" inputmode="numeric" maxlength="6" value="110022">
+              </div>
+              <div class="field">
+                <label for="dcaAmount">每月金额（元）</label>
+                <input id="dcaAmount" type="number" min="100" step="100" value="500">
+              </div>
+              <div class="field">
+                <label for="dcaMonths">测算区间</label>
+                <select id="dcaMonths">
+                  <option value="12">近 1 年</option>
+                  <option value="24" selected>近 2 年</option>
+                  <option value="36">近 3 年</option>
+                </select>
+              </div>
+              <button type="button" class="btn primary" id="dcaRun">开始测算</button>
+            </div>
+            <p class="analysis-tip">按“每月第一个交易日买入固定金额”回测，申购费内扣、不算赎回费；历史结果不代表未来。</p>
+            <div id="dcaResult" class="analysis-result empty">填好代码和金额，点“开始测算”。</div>
+          </div>
+
+          <div class="analysis-view hidden" data-view="benchmark">
+            <div id="benchmarkResult" class="analysis-result empty">切换到这里会自动加载。</div>
+          </div>
+
+          <div class="analysis-view hidden" data-view="attribution">
+            <div id="attributionResult" class="analysis-result empty">切换到这里会自动加载。</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" data-page="more" aria-labelledby="mobileTitle">
+        <div class="panel-head">
+          <h2 id="mobileTitle">手机随时看</h2>
+          <span class="hint">同一 Wi-Fi 直接开；外网用 Tailscale</span>
+        </div>
+        <div id="mobileAccess" class="mobile-access">
+          <div class="empty">正在读取本机地址…</div>
+        </div>
+      </section>
+
+      <section class="panel" data-page="more" aria-labelledby="reviewsTitle">
+        <div class="panel-head">
+          <h2 id="reviewsTitle">复盘记录</h2>
+          <div class="tabs" id="reviewTabs">
+            <button type="button" class="tab active" data-type="daily">每日</button>
+            <button type="button" class="tab" data-type="weekly">周度</button>
+            <button type="button" class="tab" data-type="monthly">月度</button>
+          </div>
+        </div>
+        <div id="reviews" class="reviews">
+          <div class="empty">暂无复盘记录</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>本地运行 · 数据存于 fund.db</span>
+      <span id="footerVersion"></span>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <div id="aiModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="aiTitle">
+    <div class="modal-card ai-card">
+      <div class="modal-head">
+        <h3 id="aiTitle">AI 设置</h3>
+        <button type="button" class="icon-btn" id="aiClose" aria-label="关闭">×</button>
+      </div>
+      <p class="ai-tip">可以随时换供应商和模型，保存后下一句提问就生效。不配 Key 也能用，问答会走本地规则。</p>
+      <div class="form ai-form">
+        <div class="field full">
+          <label for="aiPreset">供应商预设</label>
+          <select id="aiPreset">
+            <option value="">自定义 / 保持不变</option>
+            <option value="doubao">豆包方舟（火山引擎）</option>
+            <option value="deepseek">DeepSeek</option>
+            <option value="openai">OpenAI</option>
+            <option value="qwen">通义千问（兼容模式）</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="aiBaseUrl">接口地址（OpenAI 兼容）</label>
+          <input id="aiBaseUrl" type="text" placeholder="留空则用 .env 地址；选上面的预设会自动填" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="aiModel">模型名</label>
+          <input id="aiModel" type="text" placeholder="doubao-seed-1-6-250615" autocomplete="off">
+        </div>
+        <div class="field">
+          <label for="aiKey">API Key</label>
+          <input id="aiKey" type="password" placeholder="留空则不修改已保存的 Key" autocomplete="off">
+        </div>
+      </div>
+      <div id="aiStatus" class="ai-state">未配置：问答使用本地规则。</div>
+      <div class="modal-actions">
+        <button type="button" class="btn ghost" id="aiClear">清除 Key</button>
+        <button type="button" class="btn ghost" id="aiTest">测试连接</button>
+        <button type="button" class="btn primary" id="aiSave">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <button type="button" id="askFab" class="ask-fab" aria-label="问一问">问一问</button>
+  <div id="askMask" class="ask-mask hidden"></div>
+  <section id="askPanel" class="ask-panel hidden" aria-label="问一问">
+    <div class="ask-head">
+      <div>
+        <h2>问一问</h2>
+        <p id="askMode">按你的持仓和纪律线回答</p>
+      </div>
+      <div class="ask-head-actions">
+        <label class="ask-style">回答
+          <select id="askStyle">
+            <option value="coach">详细教练</option>
+            <option value="brief">直接结论</option>
+          </select>
+        </label>
+        <button type="button" class="link-btn" id="btnAiSettings">AI 设置</button>
+        <button type="button" class="icon-btn" id="askClose" aria-label="关闭">×</button>
+      </div>
+    </div>
+    <div id="askMessages" class="ask-messages"></div>
+    <div id="askQuick" class="ask-quick"></div>
+    <form id="askForm" class="ask-form">
+      <input id="askInput" type="text" maxlength="500" placeholder="例：110022 能不能买？现在该卖吗" autocomplete="off">
+      <button type="submit" class="btn primary" id="askSend">发送</button>
+    </form>
+    <p class="ask-note" id="askNote">规则回答，不预测涨跌；不构成投资建议。</p>
+  </section>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">编辑持仓</h3>
+        <button type="button" class="icon-btn" id="modalClose" aria-label="关闭">×</button>
+      </div>
+      <form id="editForm" class="form modal-form">
+        <input type="hidden" id="editId">
+        <div class="field">
+          <label for="editTarget">止盈线（%）</label>
+          <input type="number" id="editTarget" step="1" min="0" max="200" required>
+        </div>
+        <div class="field">
+          <label for="editStop">止损线（%）</label>
+          <input type="number" id="editStop" step="1" min="0" max="100" required>
+        </div>
+        <div class="field">
+          <label for="editStrategy">持有策略</label>
+          <select id="editStrategy">
+            <option value="auto">自动判断</option>
+            <option value="long">长线（拿一年以上）</option>
+            <option value="swing">波段（1-3 个月）</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="editNote">备注</label>
+          <input type="text" id="editNote" maxlength="200" placeholder="例如：定投第 3 期 / 看好消费复苏">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn ghost" id="modalCancel">取消</button>
+          <button type="submit" class="btn primary">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js?v=1.6"></script>
+</body>
+</html>

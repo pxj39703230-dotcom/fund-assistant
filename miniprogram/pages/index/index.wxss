@@ -1,0 +1,53 @@
+.hero { padding-bottom: 18rpx; }
+.hero-title { font-size: 38rpx; font-weight: 800; letter-spacing: 1rpx; }
+.market-scroll { margin-top: 18rpx; white-space: nowrap; }
+.market-line { display: inline-flex; align-items: center; gap: 20rpx; }
+.index-item { display: inline-flex; flex-direction: column; min-width: 170rpx; padding-right: 20rpx; border-right: 1rpx solid #edf2f7; }
+.index-name { font-size: 22rpx; color: #7b8b9a; }
+.index-price { font-size: 25rpx; font-weight: 600; }
+.index-pct { font-size: 22rpx; margin-top: 2rpx; }
+.market-state { margin-top: 12rpx; font-size: 21rpx; color: #7b8b9a; }
+.metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 12rpx; }
+.metric { padding: 16rpx 18rpx; border-radius: 14rpx; background: #f8fbfd; border: 1rpx solid #edf3f8; }
+.metric-label { font-size: 22rpx; color: #7b8b9a; }
+.metric-value { font-size: 32rpx; font-weight: 700; margin: 4rpx 0; }
+.metric-note { font-size: 20rpx; color: #93a2af; }
+.dist { margin-top: 18rpx; }
+.dist-bar { display: flex; height: 16rpx; border-radius: 999rpx; overflow: hidden; background: #edf2f7; }
+.dist-seg { height: 16rpx; }
+.dist-label { display: flex; align-items: center; gap: 8rpx; margin-top: 10rpx; font-size: 21rpx; color: #52677a; }
+.dist-dot { width: 12rpx; height: 12rpx; border-radius: 50%; }
+.summary-note { margin-top: 18rpx; line-height: 1.7; }
+.alert-card { border-left: 7rpx solid #f59e0b; }
+.alert-item { display: flex; gap: 12rpx; padding: 12rpx 0; border-top: 1rpx dashed #edf2f7; }
+.alert-item:first-child { border-top: 0; }
+.alert-dot { width: 12rpx; height: 12rpx; border-radius: 50%; margin-top: 10rpx; flex: 0 0 auto; }
+.alert-dot.danger { background: #dc2626; }
+.alert-dot.warn { background: #f59e0b; }
+.alert-dot.info { background: #0ea5e9; }
+.alert-body { flex: 1; }
+.alert-title { font-size: 24rpx; font-weight: 600; }
+.plan-head { font-size: 31rpx; font-weight: 700; margin-bottom: 6rpx; }
+.advice-card { border-top: 5rpx solid #0f766e; }
+.plan-action { margin-top: 16rpx; padding: 14rpx 16rpx; border-radius: 12rpx; background: #f8fbfd; }
+.plan-name { font-size: 24rpx; font-weight: 600; }
+.flag { margin-top: 12rpx; padding: 12rpx 14rpx; border-radius: 12rpx; background: #fff8e8; }
+.flag-title { display: block; font-size: 23rpx; font-weight: 600; color: #7a4a00; }
+.rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10rpx; }
+.rule-mini { padding: 12rpx 14rpx; border-radius: 12rpx; background: #f8fbfd; border: 1rpx solid #edf3f8; }
+.rule-label { font-size: 21rpx; color: #7b8b9a; }
+.rule-value { font-size: 24rpx; font-weight: 700; margin-top: 2rpx; }
+.constitution-mini .notice { margin-top: 10rpx; }
+.quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; margin-bottom: 20rpx; }
+.quick { padding: 20rpx; border-radius: 16rpx; background: #ffffff; border: 1rpx solid #e5edf4; box-shadow: 0 8rpx 22rpx rgba(15, 42, 66, 0.04); }
+.quick-title { display: block; font-size: 27rpx; font-weight: 700; color: #0f5f5a; }
+.position-card { padding: 18rpx 0; border-top: 1rpx dashed #edf2f7; }
+.position-card:first-child { border-top: 0; padding-top: 0; }
+.position-name { font-size: 26rpx; font-weight: 600; flex: 1; }
+.position-code { font-size: 21rpx; color: #8a9aa8; margin: 4rpx 0 8rpx; }
+.position-row { display: flex; justify-content: space-between; gap: 12rpx; font-size: 22rpx; margin-top: 5rpx; }
+.position-action { margin-top: 8rpx; font-size: 22rpx; color: #475569; line-height: 1.6; }
+.trigger-row { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 8rpx; }
+.trigger { font-size: 20rpx; color: #155e75; background: #edf7fa; padding: 4rpx 10rpx; border-radius: 8rpx; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }
+.retry { margin-top: 12rpx; }

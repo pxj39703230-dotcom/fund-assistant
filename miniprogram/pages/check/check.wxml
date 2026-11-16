@@ -1,0 +1,99 @@
+<view class="container">
+  <view class="card intro-card">
+    <view class="section-title"><text>买前体检</text><text>先算最坏情况</text></view>
+    <view class="field">
+      <text class="field-label">基金代码（6 位）</text>
+      <input class="input" type="number" maxlength="6" placeholder="例如 110022" value="{{code}}" bindinput="onCodeInput" bindblur="preview" />
+    </view>
+    <view class="field">
+      <text class="field-label">打算买多少钱（可不填，不填按建议首笔）</text>
+      <input class="input" type="digit" placeholder="例如 500" value="{{amount}}" bindinput="onAmountInput" />
+    </view>
+    <view class="tiny" wx:if="{{name}}">{{name}} {{navText ? '· 最新净值 ' + navText : ''}}</view>
+    <button class="btn primary full" bindtap="runCheck" loading="{{loading}}" disabled="{{loading}}">开始体检</button>
+    <view class="tiny intro-note">体检只看趋势、位置、波动、费率和你的组合，不预测涨跌。</view>
+  </view>
+
+  <view class="notice error" wx:if="{{error}}">
+    <view>{{error}}</view>
+    <button class="btn ghost small" bindtap="runCheck">重试</button>
+  </view>
+
+  <view class="card result-card" wx:if="{{result}}">
+    <view class="score-row">
+      <view class="score-box {{result.tone}}">
+        <view class="score-num">{{result.scoreText}}</view>
+        <view class="score-label">纪律分</view>
+      </view>
+      <view class="score-side">
+        <view class="grade">{{result.gradeLabel}}</view>
+        <view class="tiny">{{result.name}} · {{result.code}}</view>
+        <view class="tiny">净值 {{result.navText}}（{{result.navDate}}）· 日涨跌 <text class="{{result.growthClass}}">{{result.growthText}}</text></view>
+        <view class="tiny" wx:if="{{result.estimate}}">盘中估值 {{result.estimate.nav}} <text class="{{result.estimate.pctClass}}">{{result.estimate.pct}}</text> {{result.estimate.time}}</view>
+      </view>
+    </view>
+    <view class="headline">{{result.headline}}</view>
+
+    <view class="notice error" wx:if="{{result.blocked}}">
+      <view class="block-title">投资宪法不通过，这笔先别买</view>
+      <view>{{result.constitution.headline}}</view>
+      <view class="failed-row" wx:for="{{result.constitution.failed}}" wx:key="*this">· {{item}}</view>
+    </view>
+
+    <view class="block" wx:if="{{result.constitution}}">
+      <view class="block-title">投资宪法核对</view>
+      <view class="tiny">{{result.constitution.mode}} {{result.constitution.amount || ''}} · 买入后单只占比 {{result.constitution.postWeight}}</view>
+      <view class="rule-row" wx:for="{{result.constitution.rules}}" wx:key="key">
+        <view class="rule-left">
+          <text class="rule-mark {{item.cls}}">{{item.passed ? '✓' : '✕'}}</text>
+          <text>{{item.label}}</text>
+        </view>
+        <text class="tiny">{{item.detail}}</text>
+      </view>
+      <view class="notice {{item.cls}}" wx:for="{{result.constitution.audit}}" wx:key="label">
+        {{item.label}}：{{item.text}}
+      </view>
+      <button class="btn ghost small" bindtap="goConstitution">改宪法规则</button>
+    </view>
+
+    <view class="block" wx:if="{{result.reasons.length}}">
+      <view class="block-title">分是怎么来的</view>
+      <view class="line" wx:for="{{result.reasons}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="block" wx:if="{{result.risks.length}}">
+      <view class="block-title">你可能没注意的风险</view>
+      <view class="notice error" wx:for="{{result.risks}}" wx:key="*this">{{item}}</view>
+    </view>
+
+    <view class="block plan-block" wx:if="{{!result.blocked && result.plan}}">
+      <view class="block-title">如果真要买，按这个来</view>
+      <view class="plan-grid">
+        <view><text class="muted">首笔</text><text class="plan-value">{{result.plan.firstAmount}}</text></view>
+        <view><text class="muted">分批</text><text class="plan-value">{{result.plan.batches}} 次</text></view>
+        <view><text class="muted">止损</text><text class="plan-value">{{result.plan.stopLoss}}</text></view>
+        <view><text class="muted">止盈</text><text class="plan-value">{{result.plan.targetProfit}}</text></view>
+      </view>
+      <view class="line" wx:for="{{result.plan.lines}}" wx:key="*this">{{item}}</view>
+      <view class="tiny">持有节奏：{{result.plan.holdHint}}</view>
+    </view>
+
+    <view class="notice info" wx:if="{{result.blocked}}">宪法不过时，本站不展示“怎么买”和亏损金额，避免你被步骤带着走。</view>
+
+    <view class="block">
+      <view class="block-title">先放一晚，明天再决定</view>
+      <input class="input" placeholder="为什么想买？例如：最近涨得好 / 别人都在买" value="{{watchReason}}" bindinput="onWatchReason" />
+      <button class="btn primary full watch-btn" bindtap="addWatch">放进 24 小时冷静期</button>
+      <button class="btn ghost full" bindtap="goAsk">让教练用我的持仓再答一次</button>
+    </view>
+  </view>
+
+  <view class="card" wx:if="{{!result && !error}}">
+    <view class="section-title"><text>体检会回答什么</text></view>
+    <view class="line">· 现在这个位置，追高还是接下跌？</view>
+    <view class="line">· 按你的钱，第一笔最多买多少？</view>
+    <view class="line">· 跌破哪里必须走，涨到哪里先卖一半？</view>
+    <view class="line">· 这笔买入会不会违反你的投资宪法？</view>
+  </view>
+  <view class="tiny foot-note">规则判断，不预测涨跌，也不构成投资建议。</view>
+</view>

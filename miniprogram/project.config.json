@@ -1,0 +1,25 @@
+{
+  "description": "个人基金助手微信小程序（连接本机 fund-assistant 后端）",
+  "packOptions": {
+    "ignore": [
+      { "type": "file", "value": "README.md" }
+    ]
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "newFeature": true,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "useIsolateContext": true,
+    "useCompilerModule": true
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.3.4",
+  "appid": "touristappid",
+  "projectname": "fund-assistant-mini",
+  "condition": {}
+}

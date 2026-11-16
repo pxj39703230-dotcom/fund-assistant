@@ -1,0 +1,27 @@
+# Fly.io 部署配置
+app = "fund-assistant"  # 改成你想要的名字（全局唯一）
+primary_region = "hkg"  # 香港节点，国内访问快
+
+[build]
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false  # 不自动休眠
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
+
+[env]
+  PORT = "3000"
+  NODE_ENV = "production"
+  TZ = "Asia/Shanghai"
+
+# 数据库持久化（SQLite）
+[mounts]
+  source = "fund_data"
+  destination = "/app/data"

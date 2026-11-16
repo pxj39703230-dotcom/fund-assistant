@@ -1,0 +1,6 @@
+.intro-card { border-top: 5rpx solid #0f766e; }
+.preview-line { margin: -6rpx 0 14rpx; color: #0f5f5a; }
+.picker-value { min-height: 72rpx; line-height: 72rpx; padding: 0 18rpx; border: 1rpx solid #d8e3ec; border-radius: 12rpx; background: #ffffff; font-size: 26rpx; color: #102033; }
+.submit-btn { margin-top: 8rpx; }
+.line { font-size: 23rpx; color: #334155; line-height: 1.8; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }

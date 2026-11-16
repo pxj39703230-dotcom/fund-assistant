@@ -1,0 +1,42 @@
+<view class="container ask-container">
+  <view class="card ask-head">
+    <view class="section-title"><text>问一问</text><text>教练模式</text></view>
+    <view class="row">
+      <input class="input code-input" type="number" maxlength="6" placeholder="带上基金代码（可不填）" value="{{code}}" bindinput="onCodeInput" />
+      <button class="btn ghost small" bindtap="toggleStyle">{{styleLabel}}</button>
+    </view>
+    <view class="tiny head-hint">填写代码后，回答会结合这只基金的体检和你的持仓；不填就按整个组合回答。</view>
+  </view>
+
+  <view class="quick-row">
+    <view class="quick-chip" wx:for="{{quick}}" wx:key="*this" bindtap="useQuick" data-text="{{item}}">{{item}}</view>
+  </view>
+
+  <view class="msg {{item.role}}" wx:for="{{messages}}" wx:key="id">
+    <view class="msg-meta" wx:if="{{item.role === 'bot'}}">{{item.title}} <text wx:if="{{item.modeLabel}}">· {{item.modeLabel}}</text></view>
+    <view class="bubble {{item.role}}">
+      <text class="pre-wrap" user-select>{{item.text}}</text>
+      <view class="check-mini" wx:if="{{item.check}}">
+        <view class="row">
+          <text class="mini-name">{{item.check.name}}</text>
+          <text class="chip {{item.check.tone}}">{{item.check.gradeLabel}}</text>
+        </view>
+        <view class="tiny">纪律分 {{item.check.score}} · {{item.check.headline}}</view>
+        <view class="tiny" wx:if="{{item.check.blocked}}">宪法拦截：{{item.check.constitutionHeadline}}</view>
+        <button class="btn ghost small mini-btn" bindtap="goCheck">看完整段体检</button>
+      </view>
+      <view class="copy" wx:if="{{item.role === 'bot'}}" bindtap="copyText" data-text="{{item.text}}">复制</view>
+    </view>
+  </view>
+
+  <view class="typing" wx:if="{{sending}}">教练正在按你的持仓算…</view>
+
+  <view class="card input-card">
+    <textarea class="ask-input" placeholder="例如：110022 买 500 元行不行？我只有 1000 块。" value="{{input}}" bindinput="onInput" maxlength="300" auto-height></textarea>
+    <view class="row input-actions">
+      <button class="btn ghost small" bindtap="goCheck">先体检</button>
+      <button class="btn primary send-btn" bindtap="send" loading="{{sending}}" disabled="{{sending}}">发送</button>
+    </view>
+    <view class="tiny">回答由规则 + 你配置的 AI 生成，不构成投资建议；数字以电脑上的 fund.db 为准。</view>
+  </view>
+</view>

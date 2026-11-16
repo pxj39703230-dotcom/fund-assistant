@@ -1,0 +1,6 @@
+{
+  "desc": "个人自用，不公开索引",
+  "rules": [
+    { "action": "disallow", "page": "*" }
+  ]
+}

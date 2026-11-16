@@ -1,0 +1,67 @@
+<view class="container">
+  <view class="card summary-card" wx:if="{{summary}}">
+    <view class="section-title">
+      <text>持仓总览</text>
+      <text>{{updatedText}}</text>
+    </view>
+    <view class="grid-2">
+      <view class="sum-item"><text class="muted">当前市值</text><text class="sum-value">{{summary.value}}</text></view>
+      <view class="sum-item"><text class="muted">累计投入</text><text class="sum-value">{{summary.invest}}</text></view>
+      <view class="sum-item"><text class="muted">真实盈亏</text><text class="sum-value {{summary.realClass}}">{{summary.real}}（{{summary.rate}}）</text></view>
+      <view class="sum-item"><text class="muted">净收益</text><text class="sum-value {{summary.netClass}}">{{summary.net}}</text></view>
+    </view>
+    <view class="tiny">{{summary.funds}} 只基金 / {{summary.count}} 笔记录</view>
+    <button class="btn primary full add-btn" bindtap="goAdd">添加持仓</button>
+  </view>
+
+  <view class="notice error" wx:if="{{error}}">
+    <view>{{error}}</view>
+    <button class="btn ghost small" bindtap="load">重试</button>
+  </view>
+
+  <view class="card" wx:for="{{positions}}" wx:key="id">
+    <view class="row">
+      <view class="holding-name">{{item.name}}</view>
+      <text class="chip {{item.tone}}">{{item.verdict}}</text>
+    </view>
+    <view class="tiny">{{item.code}} · {{item.buyDate}} 买入 · 持有 {{item.holdDays}} 天</view>
+    <view class="value-line">
+      <view>
+        <view class="value-label">当前市值</view>
+        <view class="value-main">{{item.valueText}}</view>
+      </view>
+      <view class="value-right">
+        <view class="value-label">真实盈亏</view>
+        <view class="value-main {{item.realClass}}">{{item.realText}}</view>
+        <view class="tiny">{{item.realRate}}</view>
+      </view>
+    </view>
+    <view class="detail-grid">
+      <view><text class="muted">买入金额</text><text>{{item.buyAmount}}</text></view>
+      <view><text class="muted">份额</text><text>{{item.shares}}</text></view>
+      <view><text class="muted">买入净值</text><text>{{item.buyNav}}</text></view>
+      <view><text class="muted">最新净值</text><text>{{item.nav}}</text></view>
+      <view><text class="muted">申购费</text><text>{{item.purchaseFee}}</text></view>
+      <view><text class="muted">赎回费</text><text>{{item.redemptionFee}} / {{item.redemptionRate}}</text></view>
+    </view>
+    <view class="notice info" wx:if="{{item.feeHint}}">{{item.feeHint}}</view>
+    <view class="notice error" wx:if="{{item.stale}}">净值 {{item.staleDays}} 天没更新，结论可能过期。</view>
+    <view class="notice error" wx:if="{{item.error}}">{{item.error}}</view>
+    <view class="action-box" wx:if="{{item.action}}">
+      <view class="action-title">{{item.verdict}}</view>
+      <view class="tiny">{{item.action}}</view>
+    </view>
+    <view class="trigger-row" wx:if="{{item.triggers.length}}">
+      <text class="trigger" wx:for="{{item.triggers}}" wx:for-item="trigger" wx:key="*this">{{trigger}}</text>
+    </view>
+    <view class="row btn-row">
+      <button class="btn ghost small" bindtap="goCheck" data-code="{{item.code}}">再体检</button>
+      <button class="btn ghost small" bindtap="goEdit" data-id="{{item.id}}">编辑纪律</button>
+      <button class="btn danger small" catchtap="deleteOne" data-id="{{item.id}}" data-name="{{item.name}}">删除</button>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && !positions.length}}">还没有持仓。先添加一笔真实记录，程序才能替你算。</view>
+  <button class="btn primary full" bindtap="goAdd" wx:if="{{positions.length}}">再添加一笔</button>
+  <view class="tiny foot-note">删除只删本地记录；电脑上的 fund.db 不会被动，但删前想清楚。</view>
+</view>

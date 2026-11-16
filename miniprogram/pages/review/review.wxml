@@ -1,0 +1,35 @@
+<view class="container">
+  <view class="card intro-card">
+    <view class="section-title"><text>复盘</text><text>把昨天的话对上今天的数</text></view>
+    <view class="tabs">
+      <view class="tab {{type === item.key ? 'active' : ''}}" wx:for="{{tabs}}" wx:key="key" bindtap="switchType" data-type="{{item.key}}">{{item.label}}</view>
+    </view>
+    <button class="btn primary full" bindtap="generate" loading="{{generating}}" disabled="{{generating}}">现在生成一份{{type === 'daily' ? '每日' : (type === 'weekly' ? '每周' : '每月')}}复盘</button>
+    <view class="tiny">定时任务在电脑上跑；手机点这个按钮是手动补一份。</view>
+  </view>
+
+  <view class="notice error" wx:if="{{error}}">
+    <view>{{error}}</view>
+    <button class="btn ghost small" bindtap="load">重试</button>
+  </view>
+
+  <view class="card review-card" wx:for="{{reviews}}" wx:key="id">
+    <view class="row">
+      <view>
+        <view class="review-date">{{item.date}}</view>
+        <view class="tiny">{{item.typeName}} · 生成于 {{item.createdAt}}</view>
+      </view>
+      <button class="btn ghost small" bindtap="copyContent" data-text="{{item.content}}">复制</button>
+    </view>
+    <view class="metrics-mini" wx:if="{{item.metrics}}">
+      <view class="metric-mini" wx:for="{{item.metrics}}" wx:for-item="m" wx:key="label">
+        <text class="muted">{{m.label}}</text>
+        <text class="{{m.cls}}">{{m.value}}</text>
+      </view>
+    </view>
+    <view class="review-content pre-wrap" user-select>{{item.content}}</view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && !reviews.length}}">还没有复盘。先添加持仓，再点上面的生成按钮。</view>
+  <view class="tiny foot-note">复盘只记录已经发生的事；不预测，也不替你做决定。</view>
+</view>

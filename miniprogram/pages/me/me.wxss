@@ -1,0 +1,14 @@
+.connect-card { border-top: 5rpx solid #0f766e; }
+.hint { margin-top: 10rpx; }
+.lan-row { display: flex; align-items: center; justify-content: space-between; gap: 12rpx; padding: 14rpx 0; border-top: 1rpx dashed #edf2f7; }
+.lan-info { flex: 1; }
+.lan-ip { font-size: 25rpx; font-weight: 600; }
+.tool-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12rpx; }
+.tool { padding: 16rpx; border-radius: 12rpx; background: #f8fbfd; border: 1rpx solid #edf3f8; }
+.tool-title { display: block; font-size: 25rpx; font-weight: 700; color: #0f5f5a; }
+.ai-actions { flex-wrap: wrap; justify-content: flex-start; margin-top: 10rpx; }
+.watch-row { padding: 14rpx 0; border-top: 1rpx dashed #edf2f7; }
+.watch-name { font-size: 25rpx; font-weight: 600; }
+.watch-btns { margin-top: 10rpx; justify-content: flex-end; }
+.line { font-size: 23rpx; color: #334155; line-height: 1.8; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }

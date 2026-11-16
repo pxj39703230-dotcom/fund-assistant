@@ -1,0 +1,30 @@
+.intro-card { border-top: 5rpx solid #0f766e; }
+.intro-note { margin-top: 12rpx; }
+.score-row { display: flex; gap: 20rpx; align-items: center; }
+.score-box { width: 150rpx; height: 150rpx; border-radius: 18rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 0 0 auto; }
+.score-box.good { background: #ecfdf3; color: #067647; }
+.score-box.warn { background: #fff6e6; color: #9a5b00; }
+.score-box.danger { background: #fff1f0; color: #b42318; }
+.score-box.info { background: #edf7fa; color: #155e75; }
+.score-num { font-size: 54rpx; font-weight: 800; line-height: 1.1; }
+.score-label { font-size: 22rpx; }
+.score-side { flex: 1; }
+.grade { font-size: 30rpx; font-weight: 700; }
+.headline { margin-top: 18rpx; font-size: 27rpx; font-weight: 600; line-height: 1.5; }
+.block { margin-top: 22rpx; padding-top: 18rpx; border-top: 1rpx dashed #edf2f7; }
+.block-title { font-size: 26rpx; font-weight: 700; margin-bottom: 10rpx; }
+.line { font-size: 23rpx; color: #334155; line-height: 1.75; padding: 3rpx 0; }
+.block .notice { margin-top: 8rpx; }
+.rule-row { padding: 10rpx 0; border-bottom: 1rpx solid #f1f5f9; }
+.rule-left { display: flex; align-items: center; gap: 10rpx; font-size: 24rpx; }
+.rule-mark { font-weight: 700; }
+.rule-mark.ok { color: #067647; }
+.rule-mark.bad { color: #b42318; }
+.rule-row .tiny { margin-top: 2rpx; }
+.block-title .failed-row { color: #b42318; }
+.failed-row { font-size: 23rpx; color: #b42318; line-height: 1.7; }
+.plan-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10rpx; margin-bottom: 10rpx; }
+.plan-grid > view { padding: 10rpx 14rpx; border-radius: 10rpx; background: #f8fbfd; }
+.plan-value { display: block; font-size: 27rpx; font-weight: 700; }
+.watch-btn { margin-top: 14rpx; }
+.foot-note { text-align: center; margin: 22rpx 0 10rpx; color: #9aa8b4; }

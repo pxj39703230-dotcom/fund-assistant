@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>基金投资助手</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <!-- 头部 -->
+    <header class="header">
+      <h1>📈 基金投资助手</h1>
+      <div class="header-actions">
+        <button onclick="syncNow()" class="btn-secondary">🔄 同步净值</button>
+        <button onclick="generateReview()" class="btn-secondary">📊 生成复盘</button>
+      </div>
+    </header>
+
+    <!-- 资产总览 -->
+    <section class="summary-section">
+      <h2>💰 资产总览</h2>
+      <div class="summary-grid" id="summaryGrid">
+        <div class="summary-card">
+          <div class="summary-label">持仓总额</div>
+          <div class="summary-value" id="totalInvest">¥0.00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">当前市值</div>
+          <div class="summary-value" id="totalValue">¥0.00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">累计收益</div>
+          <div class="summary-value profit" id="totalProfit">¥0.00</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-label">收益率</div>
+          <div class="summary-value profit" id="totalReturn">0.00%</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 添加持仓 -->
+    <section class="add-section">
+      <h2>➕ 添加持仓</h2>
+      <form id="addForm" class="add-form">
+        <div class="form-row">
+          <input 
+            type="text" 
+            id="fundCode" 
+            placeholder="基金代码（如：000001）" 
+            required
+            maxlength="6"
+          >
+          <input 
+            type="date" 
+            id="buyDate" 
+            required
+          >
+          <input 
+            type="number" 
+            id="buyAmount" 
+            placeholder="买入金额（元）" 
+            step="0.01"
+            min="0"
+            required
+          >
+          <input 
+            type="number" 
+            id="buyNetValue" 
+            placeholder="买入净值" 
+            step="0.0001"
+            min="0"
+            required
+          >
+        </div>
+        <div class="form-row">
+          <input 
+            type="number" 
+            id="targetProfit" 
+            placeholder="止盈线（默认30%）" 
+            step="0.01"
+            min="0"
+            max="1"
+            value="0.3"
+          >
+          <input 
+            type="number" 
+            id="stopLoss" 
+            placeholder="止损线（默认20%）" 
+            step="0.01"
+            min="0"
+            max="1"
+            value="0.2"
+          >
+          <button type="submit" class="btn-primary">添加持仓</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 持仓列表 -->
+    <section class="holdings-section">
+      <h2>📊 我的持仓</h2>
+      <div id="holdingsContainer" class="holdings-container">
+        <div class="loading">加载中...</div>
+      </div>
+    </section>
+
+    <!-- 复盘记录 -->
+    <section class="reviews-section">
+      <h2>📝 复盘记录</h2>
+      <div id="reviewsContainer" class="reviews-container">
+        <div class="loading">暂无复盘记录</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast 通知 -->
+  <div id="toast" class="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

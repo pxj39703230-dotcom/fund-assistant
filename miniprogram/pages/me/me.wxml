@@ -1,0 +1,102 @@
+<view class="container">
+  <view class="card connect-card">
+    <view class="section-title"><text>连接电脑上的服务</text><text>{{health ? 'v' + health.version : ''}}</text></view>
+    <view class="notice {{health && health.status === 'ok' ? 'ok' : 'error'}}">
+      {{health && health.status === 'ok' ? '已连通：' + health.db + ' · ' + health.today : (error || '还没连上，先检查地址和电脑服务')}}
+    </view>
+    <view class="field">
+      <text class="field-label">后端地址</text>
+      <input class="input" value="{{apiBase}}" bindinput="onBase" placeholder="http://192.168.1.10:3000" />
+    </view>
+    <view class="field">
+      <text class="field-label">访问口令（如果电脑设了 API_TOKEN 才填）</text>
+      <input class="input" value="{{token}}" bindinput="onToken" password placeholder="留空表示没设" />
+    </view>
+    <view class="row">
+      <button class="btn ghost small" bindtap="test">测试连接</button>
+      <button class="btn primary small" bindtap="saveBase">保存并测试</button>
+    </view>
+    <view class="tiny hint">电脑开发者工具里可以用 127.0.0.1；手机真机必须改成电脑的局域网 IP，且和电脑同一 Wi-Fi。</view>
+  </view>
+
+  <view class="card" wx:if="{{lanUrls.length}}">
+    <view class="section-title"><text>电脑的局域网地址</text><text>手机用这个</text></view>
+    <view class="lan-row" wx:for="{{lanUrls}}" wx:key="ip">
+      <view class="lan-info">
+        <view class="lan-ip">{{item.ip}}</view>
+        <view class="tiny">{{item.url}}</view>
+      </view>
+      <view class="row">
+        <button class="btn ghost small" bindtap="copyUrl" data-url="{{item.url}}">复制</button>
+        <button class="btn primary small" bindtap="useUrl" data-url="{{item.url}}">用它</button>
+      </view>
+    </view>
+    <view class="tiny">如果手机连不上，检查 Windows 防火墙是否放行 Node/3000 端口。外网访问需要另外组网或 HTTPS，不在本版承诺范围内。</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title"><text>数据与任务</text><text>{{meta ? meta.holdings + ' 笔 / ' + meta.funds + ' 只' : ''}}</text></view>
+    <view class="tool-grid">
+      <view class="tool" bindtap="sync"><text class="tool-title">同步净值</text><text class="tiny">{{syncStatus || '手动拉一次'}}</text></view>
+      <view class="tool" bindtap="backup"><text class="tool-title">备份数据库</text><text class="tiny">复制一份 fund.db</text></view>
+      <view class="tool" bindtap="goReview"><text class="tool-title">复盘</text><text class="tiny">看昨天的判断</text></view>
+      <view class="tool" bindtap="goConstitution"><text class="tool-title">投资宪法</text><text class="tiny">改硬规则</text></view>
+    </view>
+    <view class="notice ok" wx:if="{{backupPath}}">
+      <view>已备份 {{backupSize}}</view>
+      <view class="tiny pre-wrap" bindtap="copyPath">{{backupPath}}</view>
+    </view>
+    <view class="tiny">最后同步：{{meta && meta.lastSyncAt ? meta.lastSyncAt : '还没有记录'}}</view>
+  </view>
+
+  <view class="card">
+    <view class="section-title"><text>AI 配置</text><text>{{ai && ai.ready ? '已就绪' : '未就绪'}}</text></view>
+    <view class="notice info" wx:if="{{ai && ai.ready}}">当前模型 {{ai.model}} · Key {{ai.keyMasked || '已设置'}}</view>
+    <view class="notice error" wx:if="{{aiError}}">{{aiError}}</view>
+    <view class="field">
+      <text class="field-label">接口地址（OpenAI 兼容）</text>
+      <input class="input" value="{{aiBase}}" data-field="aiBase" bindinput="onAiField" placeholder="https://api.openai.com/v1" />
+    </view>
+    <view class="field">
+      <text class="field-label">模型名</text>
+      <input class="input" value="{{aiModel}}" data-field="aiModel" bindinput="onAiField" placeholder="gpt-4o-mini / deepseek-chat" />
+    </view>
+    <view class="field">
+      <text class="field-label">服务商备注（可不填）</text>
+      <input class="input" value="{{aiProvider}}" data-field="aiProvider" bindinput="onAiField" placeholder="例如 deepseek" />
+    </view>
+    <view class="field">
+      <text class="field-label">API Key（留空表示不修改）</text>
+      <input class="input" value="{{aiKey}}" data-field="aiKey" bindinput="onAiField" password placeholder="sk-..." />
+    </view>
+    <view class="row ai-actions">
+      <button class="btn ghost small" bindtap="testAi" loading="{{aiTesting}}" disabled="{{aiTesting}}">测试 AI</button>
+      <button class="btn primary small" bindtap="saveAi">保存</button>
+      <button class="btn danger small" bindtap="clearAiKey">清空 Key</button>
+    </view>
+    <view class="tiny">不配 AI 也能用规则版「问一问」；配了之后回答更自然，但所有数字仍来自你的数据库。</view>
+  </view>
+
+  <view class="card" wx:if="{{watchlist.length}}">
+    <view class="section-title"><text>24 小时冷静期</text><text>{{watchlist.length}} 只</text></view>
+    <view class="watch-row" wx:for="{{watchlist}}" wx:key="id">
+      <view class="row">
+        <text class="watch-name">{{item.name}}</text>
+        <text class="chip {{item.canDecide ? 'warn' : 'plain'}}">{{item.statusLabel}}</text>
+      </view>
+      <view class="tiny">{{item.code}} · {{item.reason}}</view>
+      <view class="row watch-btns" wx:if="{{item.canDecide}}">
+        <button class="btn ghost small" bindtap="updateWatch" data-id="{{item.id}}" data-status="dropped">放弃</button>
+        <button class="btn primary small" bindtap="updateWatch" data-id="{{item.id}}" data-status="bought">已买</button>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title"><text>使用说明</text></view>
+    <view class="line">· 小程序不保存你的基金数据，所有数据仍在电脑 fund.db。</view>
+    <view class="line">· 电脑关机/断网时小程序看不了；想随时看，需要电脑常开或后续做组网。</view>
+    <view class="line">· 正式发布要 AppID、HTTPS 域名和备案；只自己用可以先 touristappid + 开发者工具。</view>
+  </view>
+  <view class="tiny foot-note">个人自用，不发布、不上云。</view>
+</view>

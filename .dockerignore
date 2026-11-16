@@ -1,0 +1,10 @@
+node_modules
+.git
+.workbuddy
+.env
+*.log
+backups
+tests
+docs
+*.md
+.gitignore
